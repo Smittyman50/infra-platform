@@ -1,0 +1,6 @@
+---
+patch_upgrade_type: dist
+patch_autoremove: true
+patch_reboot_if_required: true
+patch_reboot_timeout: 900
+patch_reboot_msg: "Reboot initiated by maintenance workflow"
