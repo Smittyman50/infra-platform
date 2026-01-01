@@ -45,7 +45,8 @@
   community.general.timezone:
     name: "{{ base_timezone }}"
 
-- name: Ensure admin user exists (smittyman)
+# If admin_password_plain is provided, set/ensure the password.
+- name: Ensure admin user exists (with password)
   ansible.builtin.user:
     name: "{{ admin_user_name }}"
     shell: /bin/bash
@@ -54,6 +55,21 @@
     create_home: true
     state: present
     password: "{{ admin_password_plain | password_hash('sha512') }}"
+  when:
+    - admin_password_plain is defined
+    - admin_password_plain | string | length > 0
+
+# If no password is provided, ensure the user exists but do not modify password.
+- name: Ensure admin user exists (no password change)
+  ansible.builtin.user:
+    name: "{{ admin_user_name }}"
+    shell: /bin/bash
+    groups: "{{ admin_user_groups }}"
+    append: true
+    create_home: true
+    state: present
+  when:
+    - admin_password_plain is not defined or (admin_password_plain | string | length == 0)
 
 - name: Ensure .ssh directory exists for admin user
   ansible.builtin.file:
