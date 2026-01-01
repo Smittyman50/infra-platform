@@ -1,0 +1,12 @@
+# Terraform
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.*
+**/.terraform.lock.hcl
+
+# Ansible
+**/*.retry
+
+# OS
+.DS_Store
+Thumbs.db

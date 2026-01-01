@@ -1,0 +1,80 @@
+---
+- name: Wait for apt/dpkg locks to be released
+  ansible.builtin.shell: |
+    set -e
+    while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1 \
+       || fuser /var/lib/dpkg/lock >/dev/null 2>&1 \
+       || fuser /var/lib/apt/lists/lock >/dev/null 2>&1; do
+      sleep 3
+    done
+  args:
+    executable: /bin/bash
+  changed_when: false
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Install baseline packages
+  ansible.builtin.apt:
+    name:
+      - ca-certificates
+      - curl
+      - vim
+      - htop
+      - net-tools
+      - qemu-guest-agent
+      - sudo
+      - duf
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+  register: apt_result
+  retries: 10
+  delay: 6
+  until: apt_result is succeeded
+
+- name: Ensure qemu-guest-agent is enabled and started
+  ansible.builtin.service:
+    name: qemu-guest-agent
+    enabled: true
+    state: started
+
+- name: Set timezone
+  community.general.timezone:
+    name: "{{ base_timezone }}"
+
+- name: Ensure admin user exists (smittyman)
+  ansible.builtin.user:
+    name: "{{ admin_user_name }}"
+    shell: /bin/bash
+    groups: "{{ admin_user_groups }}"
+    append: true
+    create_home: true
+    state: present
+    password: "{{ admin_password_plain | password_hash('sha512') }}"
+
+- name: Ensure .ssh directory exists for admin user
+  ansible.builtin.file:
+    path: "/home/{{ admin_user_name }}/.ssh"
+    state: directory
+    owner: "{{ admin_user_name }}"
+    group: "{{ admin_user_name }}"
+    mode: "0700"
+
+- name: Install admin authorized keys (for smittyman)
+  ansible.posix.authorized_key:
+    user: "{{ admin_user_name }}"
+    state: present
+    key: "{{ item }}"
+  loop: "{{ admin_authorized_keys }}"
+
+- name: Configure passwordless sudo for admin user
+  ansible.builtin.copy:
+    dest: "/etc/sudoers.d/{{ admin_user_name }}"
+    content: "{{ admin_user_name }} ALL=(ALL) NOPASSWD:ALL\n"
+    owner: root
+    group: root
+    mode: "0440"
+  when: admin_passwordless_sudo | bool
