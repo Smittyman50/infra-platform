@@ -16,17 +16,22 @@
     update_cache: true
     cache_valid_time: 3600
 
+# Install baseline packages, with qemu-guest-agent controlled by a flag
 - name: Install baseline packages
   ansible.builtin.apt:
-    name:
-      - ca-certificates
-      - curl
-      - vim
-      - htop
-      - net-tools
-      - qemu-guest-agent
-      - sudo
-      - duf
+    name: >-
+      {{
+        [
+          'ca-certificates',
+          'curl',
+          'vim',
+          'htop',
+          'net-tools',
+          'sudo',
+          'duf'
+        ]
+        + (['qemu-guest-agent'] if (enable_qemu_guest_agent | default(true) | bool) else [])
+      }}
     state: present
     update_cache: true
     cache_valid_time: 3600
@@ -35,11 +40,15 @@
   delay: 6
   until: apt_result is succeeded
 
+# Only manage qemu-guest-agent service when enabled and systemd is in use
 - name: Ensure qemu-guest-agent is enabled and started
   ansible.builtin.service:
     name: qemu-guest-agent
     enabled: true
     state: started
+  when:
+    - enable_qemu_guest_agent | default(true) | bool
+    - ansible_service_mgr == "systemd"
 
 - name: Set timezone
   community.general.timezone:
