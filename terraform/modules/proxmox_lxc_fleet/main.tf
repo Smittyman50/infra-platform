@@ -48,8 +48,4 @@ resource "proxmox_virtual_environment_container" "ct" {
       keys = [var.ssh_public_key]
     }
   }
-
-  timeouts {
-    create = "${var.timeout_create}s"
-  }
 }
