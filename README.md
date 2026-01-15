@@ -16,6 +16,7 @@ infra-platform exists to:
 3. Enable safe upgrades via explicit version pinning from stack repositories
 
 Nothing in this repository should assume:
+
 - a specific hostname
 - a specific IP range
 - a specific environment (prod, lab, dev)
@@ -72,9 +73,11 @@ flowchart TD
 ### Ansible Roles
 
 #### base
+
 Baseline Linux configuration role.
 
 Responsibilities:
+
 - Install baseline packages
 - Configure timezone
 - Ensure admin user exists
@@ -82,6 +85,7 @@ Responsibilities:
 - Configure optional passwordless sudo
 
 Admin password handling:
+
 - If admin_password_plain is defined, the password is set
 - If not defined, the user is ensured without modifying the password
 
@@ -97,9 +101,11 @@ This makes the role safe for both provisioning and maintenance workflows.
 ---
 
 #### patch_linux
+
 Maintenance-only role for updating existing systems.
 
 Responsibilities:
+
 - Update apt cache
 - Apply package upgrades
 - Autoremove unused packages
@@ -125,6 +131,7 @@ Designed for rolling updates and safe use on critical systems such as domain con
 This repository is versioned using Git tags.
 
 Stacks explicitly pin versions using:
+
 - Terraform module source refs (?ref=vX.Y.Z)
 - Workflow-level git clones pinned to a tag
 
