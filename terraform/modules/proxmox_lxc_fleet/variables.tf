@@ -8,6 +8,13 @@ variable "ssh_public_key" {
   description = "SSH public key injected via container initialization"
 }
 
+variable "ct_console_password" {
+  type        = string
+  description = "Console password for the container's initialized user account (optional)"
+  sensitive   = true
+  default     = null
+}
+
 variable "hosts" {
   description = "Host specs keyed by inventory hostname."
   type = map(object({
