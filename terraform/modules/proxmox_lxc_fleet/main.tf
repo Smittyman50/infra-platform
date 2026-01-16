@@ -23,6 +23,11 @@ resource "proxmox_virtual_environment_container" "ct" {
     type             = each.value.os_type
   }
 
+  features {
+    nesting = true
+    keyctl  = true
+  }
+
   network_interface {
     name    = "eth0"
     bridge  = each.value.bridge
