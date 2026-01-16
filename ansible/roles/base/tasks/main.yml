@@ -80,6 +80,13 @@
   when:
     - admin_password_plain is not defined or (admin_password_plain | string | length == 0)
 
+- name: Unlock admin user for console login (no password set)
+  ansible.builtin.command: "passwd -u {{ admin_user_name }}"
+  changed_when: false
+  when:
+    - admin_console_password_enabled | bool
+    - admin_password_plain is not defined or (admin_password_plain | string | length == 0)
+
 - name: Ensure .ssh directory exists for admin user
   ansible.builtin.file:
     path: "/home/{{ admin_user_name }}/.ssh"
