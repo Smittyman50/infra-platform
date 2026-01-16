@@ -51,6 +51,7 @@ resource "proxmox_virtual_environment_container" "ct" {
 
     user_account {
       keys = [var.ssh_public_key]
+      password = var.ct_console_password
     }
   }
 }
