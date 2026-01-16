@@ -25,7 +25,6 @@ resource "proxmox_virtual_environment_container" "ct" {
 
   features {
     nesting = true
-    keyctl  = true
   }
 
   network_interface {
